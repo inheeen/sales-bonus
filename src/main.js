@@ -20,14 +20,16 @@ function calculateSimpleRevenue(purchase, _product) {
  * @returns {number}
  */
 function calculateBonusByProfit(index, total, seller) {
+    const baseProfit = seller.profit || 1000 ;
+
     if ( index === 0 ) {
-        return 0.15 ;
+        return  baseProfit * 0.15;
     } else if ( index === 1 || index === 2 ) { 
-        return 0.10 ;
+        return  baseProfit * 0.10 ;
     } else if ( index === total - 1) {
         return 0.00 ;
     } else {
-        return 0.05 ; 
+        return  baseProfit * 0.05 ; 
     }
 }
 
@@ -117,7 +119,7 @@ function analyzeSalesData(data, options) {
     sellerStats.sort(( a, b ) => b.profit - a.profit)
 
     sellerStats.forEach((seller, index) => {
-        seller.bonus = calculateBonus( index, sellerStats.length, sellersIndex[seller.id]) ;
+        seller.bonus = calculateBonus(index, sellerStats.length, seller);
         seller.top_products = Object.entries( seller.products_sold ).map(([sku, quantity]) => ({sku, quantity})).sort((a,b) => b.quantity - a.quantity).slice( 0, 10 )
     })
 
