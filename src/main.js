@@ -85,36 +85,37 @@ function analyzeSalesData(data, options) {
         [_product.sku]: _product
     }), {})
 
-    data.purchase_records.forEach(record => {
-        const seller = sellersIndex[record.seller_id] ;
-        if ( !seller ) {
-            console.warn(`Продавец ${record.seller_id} не найден.`) ;
-            return ;
+ data.purchase_records.forEach(record => {
+    const seller = sellersIndex[record.seller_id];
+    if (!seller) {
+        console.warn(`Продавец ${record.seller_id} не найден.`);
+        return;
+    }
+    
+    const sellerStatsItem = sellerStats.find(s => s.id === record.seller_id);
+    sellerStatsItem.sales_count += 1;
+
+    record.items.forEach(item => {
+        const product = productIndex[item.sku];
+        if (!product) {
+            console.warn(`Товар ${item.sku} не найден.`);
+            return;
         }
-        
-        const sellerStatsItem = sellerStats.find(s => s.id === record.seller_id) ;
-        sellerStatsItem.sales_count += 1 ;
 
-        record.items.forEach( item => {
-            const product = productIndex[item.sku] ;
-            if ( !product ) {
-                console.warn(`Товар ${item.sku} не найден.`) ;
-                return;
-            }
+        const revenue = calculateRevenue(item, product); 
+        const cost = product.purchase_price * item.quantity;
+        const profit = revenue - cost;
 
-            const revenue = calculateRevenue(item, product) ; 
-            const cost = product.purchase_price * item.quantity ;
-            const profit = revenue - cost ;
+        // Округляем каждое слагаемое перед сложением
+        sellerStatsItem.revenue = Number((sellerStatsItem.revenue + revenue).toFixed(2));
+        sellerStatsItem.profit = Number((sellerStatsItem.profit + profit).toFixed(2));
 
-            sellerStatsItem.revenue += revenue ;
-            sellerStatsItem.profit += profit ; 
-
-            if (!sellerStatsItem.products_sold[item.sku]) {
-                sellerStatsItem.products_sold[item.sku] = 0 ;
-            }
-            sellerStatsItem.products_sold[item.sku] += item.quantity ;
-        }) ;
-    }) ; 
+        if (!sellerStatsItem.products_sold[item.sku]) {
+            sellerStatsItem.products_sold[item.sku] = 0;
+        }
+        sellerStatsItem.products_sold[item.sku] += item.quantity;
+    });
+});
 
     sellerStats.sort(( a, b ) => b.profit - a.profit)
 
