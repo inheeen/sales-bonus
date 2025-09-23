@@ -107,9 +107,8 @@ function analyzeSalesData(data, options) {
         const profit = revenue - cost;
 
         // Округляем каждое слагаемое перед сложением
-        sellerStatsItem.revenue = Number((sellerStatsItem.revenue + revenue).toFixed(2));
-        sellerStatsItem.profit = Number((sellerStatsItem.profit + profit).toFixed(2));
-
+        sellerStatsItem.revenue += revenue;
+        sellerStatsItem.profit += profit;
         if (!sellerStatsItem.products_sold[item.sku]) {
             sellerStatsItem.products_sold[item.sku] = 0;
         }
@@ -125,12 +124,12 @@ function analyzeSalesData(data, options) {
     })
 
     return sellerStats.map(seller => ({
-        seller_id: seller.id,
-        name: seller.name,
-        revenue: Number((Math.round(seller.revenue * 100) / 100).toFixed(2)),
-        profit: Number((Math.round(seller.profit * 100) / 100).toFixed(2)),
-        sales_count: seller.sales_count,
-        top_products: seller.top_products,
-        bonus: Number((Math.round(seller.bonus * 100) / 100).toFixed(2))
-    }));
+    seller_id: seller.id,
+    name: seller.name,
+    revenue: Number(seller.revenue.toFixed(2)),
+    profit: Number(seller.profit.toFixed(2)),
+    sales_count: seller.sales_count,
+    top_products: seller.top_products,
+    bonus: Number(seller.bonus.toFixed(2))
+}));
 }
