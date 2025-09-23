@@ -68,19 +68,23 @@ function analyzeSalesData(data, options) {
     // Расчёт выручки и прибыли для каждого продавца
     data.purchase_records.forEach(record => {
         const seller = sellerIndex[record.seller_id];
-        if (!seller) return;
+        if (!seller) {
+                console.warn('Продавец не найден')
+            };;
 
         seller.sales_count += 1;
-
+        seller.revenue += record.total_amount;
         record.items.forEach(item => {
             const product = productIndex[item.sku];
-            if (!product) return;
+            if (!product) {
+                console.warn('Товар не найден')
+            };
 
             const revenue = calculateRevenue(item, product);
             const cost = product.purchase_price * item.quantity;
             const profit = revenue - cost;
 
-            seller.revenue += revenue;
+            // seller.revenue += record.total_amount;
             seller.profit += profit;
 
             if (!seller.products_sold[item.sku]) {
